@@ -3,12 +3,16 @@ export function renderReceiptList(container, receipts, onRemove) {
 
   if (!receipts.length) {
     const empty = document.createElement("div");
+
     empty.className = "empty-state";
-    const title = document.createElement("strong");
-    title.textContent = "Belum ada resi";
-    const description = document.createElement("span");
-    description.textContent = "Screenshot yang ditempel akan muncul di sini.";
-    empty.append(title, description);
+
+    empty.innerHTML = `
+                        <strong>Belum ada resi</strong>
+                        <span>
+                          Screenshot yang ditempel akan muncul di sini.
+                        </span>
+                      `;
+
     container.append(empty);
     return;
   }

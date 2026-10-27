@@ -5,16 +5,21 @@ function createPaper(receipts, pageNumber) {
   paper.className = "paper";
   paper.setAttribute("aria-label", `Halaman A4 ${pageNumber}`);
 
-  receipts.forEach((receipt) => {
-    const wrapper = document.createElement("div");
-    wrapper.className = "paper__receipt";
-    const image = document.createElement("img");
-    image.src = receipt.src;
-    image.alt = "Resi untuk dicetak";
-    image.draggable = false;
-    wrapper.append(image);
-    paper.append(wrapper);
-  });
+  paper.innerHTML = `
+                      ${receipts
+                        .map(
+                          (receipt) => `
+                                        <div class="paper__receipt">
+                                          <img
+                                            src="${receipt.src}"
+                                            alt="Resi untuk dicetak"
+                                            draggable="false"
+                                          >
+                                        </div>
+                                      `,
+                        )
+                        .join("")}
+                    `;
 
   return paper;
 }
@@ -25,9 +30,10 @@ export function renderPrintPreview(container, receipts) {
   if (!receipts.length) {
     const emptyPaper = document.createElement("div");
     emptyPaper.className = "paper paper--empty";
-    const message = document.createElement("p");
-    message.textContent = "Preview cetak akan muncul di sini.";
-    emptyPaper.append(message);
+
+    emptyPaper.innerHTML = `
+                            <p>Preview cetak akan muncul di sini.</p>
+                          `;
     container.append(emptyPaper);
     return;
   }
