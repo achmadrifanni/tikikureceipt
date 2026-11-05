@@ -1,4 +1,4 @@
-const PAGE_CAPACITY = 8; // Starter default: 4 receipt slots per column. Tune after testing real screenshots.
+const PAGE_CAPACITY = 16; // Starter default: 4 receipt slots per column. Tune after testing real screenshots.
 
 function createPaper(receipts, pageNumber) {
   const paper = document.createElement("section");

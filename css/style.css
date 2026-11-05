@@ -312,7 +312,7 @@ kbd {
   padding: var(--page-margin);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(7, max-content);
+  grid-template-rows: repeat(8, max-content);
   grid-auto-flow: column;
   align-content: start;
   column-gap: var(--column-gap);
