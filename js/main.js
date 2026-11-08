@@ -1,7 +1,7 @@
 import { setupClipboard } from "./modules/clipboard.js";
 import { createReceiptStore } from "./modules/receipts.js";
 import { renderReceiptList } from "./modules/receipt-list.js";
-import { renderPrintPreview, printReceipts } from "./modules/print.js";
+import { renderPrintPreview} from "./modules/print.js";
 
 const elements = {
   pasteZone: document.querySelector("#pasteZone"),
