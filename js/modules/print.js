@@ -75,7 +75,7 @@ function getFinalSize(receipt) {
 
 
 // Membuat preview halaman A4
-export function renderPrintPreview(receipts, container) {
+export function renderPrintPreview(container, receipts) {
   container.innerHTML = "";
 
   if (receipts.length === 0) {
