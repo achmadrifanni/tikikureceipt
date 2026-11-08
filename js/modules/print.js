@@ -1,53 +1,158 @@
-const PAGE_CAPACITY = 16; // Starter default: 4 receipt slots per column. Tune after testing real screenshots.
 
-function createPaper(receipts, pageNumber) {
+const PAGE_HEIGHT = 297;
+const PAGE_MARGIN = 10;
+const COLUMN_GAP = 5;
+const RECEIPT_GAP = 4;
+
+const CONTENT_HEIGHT = PAGE_HEIGHT - PAGE_MARGIN * 2;
+
+const COLUMN_WIDTH =
+  (210 - PAGE_MARGIN * 2 - COLUMN_GAP) / 2;
+
+
+// Membuat satu halaman A4 dengan dua kolom
+function createPaper(pageNumber) {
   const paper = document.createElement("section");
+
   paper.className = "paper";
   paper.setAttribute("aria-label", `Halaman A4 ${pageNumber}`);
 
   paper.innerHTML = `
-                      ${receipts
-                        .map(
-                          (receipt) => `
-                                        <div class="paper__receipt">
-                                          <img
-                                            src="${receipt.src}"
-                                            alt="Resi untuk dicetak"
-                                            draggable="false"
-                                          >
-                                        </div>
-                                      `,
-                        )
-                        .join("")}
-                    `;
+    <div class="paper__column"></div>
+    <div class="paper__column"></div>
+  `;
 
-  return paper;
+  return {
+    element: paper,
+    columns: paper.querySelectorAll(".paper__column"),
+    heights: [0, 0],
+    counts: [0, 0],
+  };
 }
 
-export function renderPrintPreview(container, receipts) {
-  container.replaceChildren();
 
-  if (!receipts.length) {
-    const emptyPaper = document.createElement("div");
-    emptyPaper.className = "paper paper--empty";
+// Membuat elemen gambar resi atau bukti transfer
+function createReceipt(receipt) {
+  const item = document.createElement("div");
 
-    emptyPaper.innerHTML = `
-                            <p>Preview cetak akan muncul di sini.</p>
-                          `;
-    container.append(emptyPaper);
+  item.className = "paper__receipt";
+
+  item.innerHTML = `
+    <img
+      src="${receipt.src}"
+      alt="${receipt.name}"
+    />
+  `;
+
+  return item;
+}
+
+
+// Menghitung tinggi gambar berdasarkan rasio aslinya
+function getReceiptHeight(receipt) {
+  return COLUMN_WIDTH * (receipt.height / receipt.width);
+}
+
+
+// Membatasi gambar yang terlalu tinggi agar tetap muat di satu kolom A4
+function getFinalSize(receipt) {
+  const naturalHeight = getReceiptHeight(receipt);
+
+  if (naturalHeight <= CONTENT_HEIGHT) {
+    return {
+      height: naturalHeight,
+      width: 100,
+    };
+  }
+
+  const scale = CONTENT_HEIGHT / naturalHeight;
+
+  return {
+    height: CONTENT_HEIGHT,
+    width: scale * 100,
+  };
+}
+
+
+// Membuat preview halaman A4
+export function renderPrintPreview(receipts, container) {
+  container.innerHTML = "";
+
+  if (receipts.length === 0) {
+    container.innerHTML = `
+      <div class="paper paper--empty">
+        <p>Preview cetak akan muncul di sini.</p>
+      </div>
+    `;
+
     return;
   }
 
-  // Simple starter behavior: split receipts into pages by a fixed count.
-  // Later, improve this to measure each image's rendered height and flow to the next page automatically.
-  for (let start = 0, page = 1; start < receipts.length; start += PAGE_CAPACITY, page += 1) {
-    const pageReceipts = receipts.slice(start, start + PAGE_CAPACITY);
-    container.append(createPaper(pageReceipts, page));
-  }
-}
+  let pageNumber = 1;
+  let currentPage = createPaper(pageNumber);
+  let currentColumn = 0;
 
-export function printReceipts(receipts) {
-  if (!receipts.length) return;
-  // Uses the browser's print dialog and CSS @media print rules.
-  window.print();
+  function nextPage() {
+    container.append(currentPage.element);
+
+    pageNumber++;
+    currentPage = createPaper(pageNumber);
+    currentColumn = 0;
+  }
+
+  receipts.forEach((receipt) => {
+    const naturalHeight = getReceiptHeight(receipt);
+
+    // Periksa apakah gambar muat di kolom saat ini
+    let gap = currentPage.counts[currentColumn] > 0
+      ? RECEIPT_GAP
+      : 0;
+
+    let remainingHeight =
+      CONTENT_HEIGHT -
+      currentPage.heights[currentColumn] -
+      gap;
+
+    // Jika tidak muat di kolom pertama, pindah ke kolom kedua
+    if (naturalHeight > remainingHeight && currentColumn === 0) {
+      currentColumn = 1;
+
+      gap = currentPage.counts[currentColumn] > 0
+        ? RECEIPT_GAP
+        : 0;
+
+      remainingHeight =
+        CONTENT_HEIGHT -
+        currentPage.heights[currentColumn] -
+        gap;
+    }
+
+    // Jika kolom kedua juga tidak cukup, buat halaman baru
+    if (naturalHeight > remainingHeight) {
+      nextPage();
+      gap = 0;
+    }
+
+    // Hitung ukuran akhir gambar
+    const size = getFinalSize(receipt);
+
+    const item = createReceipt(receipt);
+
+    item.style.width = `${size.width}%`;
+
+    currentPage.columns[currentColumn].append(item);
+
+    // Perbarui tinggi yang sudah digunakan
+    const itemGap = currentPage.counts[currentColumn] > 0
+      ? RECEIPT_GAP
+      : 0;
+
+    currentPage.heights[currentColumn] +=
+      size.height + itemGap;
+
+    currentPage.counts[currentColumn]++;
+  });
+
+  // Masukkan halaman terakhir ke preview
+  container.append(currentPage.element);
 }

@@ -310,17 +310,24 @@ kbd {
   width: min(100%, 210mm);
   aspect-ratio: 210 / 297;
   padding: var(--page-margin);
+
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: repeat(8, max-content);
-  grid-auto-flow: column;
-  align-content: start;
+
   column-gap: var(--column-gap);
-  row-gap: var(--receipt-gap);
-  background: var(--color-panel);
+
+  background: #fff;
   box-shadow: 0 5px 22px rgb(0 0 0 / 9%);
   overflow: hidden;
 }
+
+.paper__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--receipt-gap);
+  min-width: 0;
+}
+
 .paper--empty {
   display: flex;
   align-items: center;
@@ -330,11 +337,10 @@ kbd {
   text-align: center;
 }
 .paper__receipt {
-  min-width: 0;
-  align-self: start;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px dotted var(--color-dark);
+  flex-shrink: 0;
+  max-width: 100%;
 }
+
 .paper__receipt img {
   display: block;
   width: 100%;
