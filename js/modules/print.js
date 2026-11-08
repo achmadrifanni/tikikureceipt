@@ -156,3 +156,7 @@ export function renderPrintPreview(container, receipts) {
   // Masukkan halaman terakhir ke preview
   container.append(currentPage.element);
 }
+
+export function printReceipts() {
+  window.print();
+}
