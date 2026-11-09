@@ -23,6 +23,8 @@
 
     <link rel="stylesheet" href="css/reset.css" />
     <link rel="stylesheet" href="css/style.css" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script type="module" src="js/main.js"></script>
   </head>
   <body>
@@ -75,7 +77,14 @@
             <span class="paste-zone__browse">Atau pilih gambar dari komputer</span>
           </label>
           <input id="imageInput" class="visually-hidden" type="file" accept="image/*" multiple />
+          <div class="pdf-upload">
+            <label class="button button--tertiary" for="pdfInput"> Upload PDF Borongan </label>
+
+            <input id="pdfInput" class="visually-hidden" type="file" accept="application/pdf" />
+          </div>
         </div>
+        <div id="pdfSummaryPreview" class="pdf-summary-preview" hidden></div>
+        <div id="pdfImageResult" class="pdf-image-result" hidden></div>
 
         <div class="list-bottom">
           <div class="section-heading">

@@ -38,6 +38,33 @@ export function createReceiptStore() {
       return receipt;
     },
 
+    async addImageData(imageData) {
+      if (!imageData?.src) {
+        throw new Error("Data gambar tidak ditemukan.");
+      }
+
+      // Membaca dimensi gambar PNG
+      const image = new Image();
+      image.src = imageData.src;
+
+      await image.decode();
+
+      // Membuat objek resi dengan struktur yang sama
+      // seperti gambar hasil upload biasa
+      const receipt = {
+        id: createId(),
+        name: imageData.name || "Ringkasan Borongan.png",
+        src: imageData.src,
+        width: image.naturalWidth,
+        height: image.naturalHeight,
+        createdAt: Date.now(),
+      };
+
+      receipts = [...receipts, receipt];
+
+      return receipt;
+    },
+
     remove(id) {
       receipts = receipts.filter((receipt) => receipt.id !== id);
     },

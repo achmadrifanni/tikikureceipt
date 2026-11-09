@@ -2,10 +2,13 @@ import { setupClipboard } from "./modules/clipboard.js";
 import { createReceiptStore } from "./modules/receipts.js";
 import { renderReceiptList } from "./modules/receipt-list.js";
 import { renderPrintPreview, printReceipts } from "./modules/print.js";
+import { readBoronganPdf } from "./modules/pdf-summary.js";
+import { renderBoronganSummary, convertSummaryToImage } from "./modules/pdf-summary-view.js";
 
 const elements = {
   pasteZone: document.querySelector("#pasteZone"),
   imageInput: document.querySelector("#imageInput"),
+  pdfInput: document.querySelector("#pdfInput"),
   receiptList: document.querySelector("#receiptList"),
   receiptCount: document.querySelector("#receiptCount"),
   printPages: document.querySelector("#printPages"),
@@ -80,3 +83,43 @@ elements.clearAllButton.addEventListener("click", () => {
 elements.printButton.addEventListener("click", () => printReceipts(store.getAll()));
 
 refreshUI();
+
+elements.pdfInput.addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  try {
+    // 1. Membaca dan mengambil data PDF
+    const data = await readBoronganPdf(file);
+
+    // 2. Membuat tampilan HTML ringkasan
+    const summaryPreview = document.querySelector("#pdfSummaryPreview");
+
+    renderBoronganSummary(data, summaryPreview);
+
+    summaryPreview.hidden = false;
+
+    // 3. Mengubah HTML menjadi gambar PNG
+    const imageData = await convertSummaryToImage(summaryPreview);
+
+    // 4. Memasukkan gambar ke daftar resi
+    await store.addImageData(imageData);
+
+    // 5. Menyembunyikan preview HTML sementara
+    summaryPreview.hidden = true;
+
+    // 6. Memperbarui daftar resi dan preview A4
+    refreshUI();
+
+    showStatus("Ringkasan PDF berhasil ditambahkan.");
+
+    console.log("Gambar ringkasan berhasil ditambahkan:", imageData);
+  } catch (error) {
+    console.error(error);
+
+    showStatus(error.message || "PDF gagal diproses.");
+  } finally {
+    event.target.value = "";
+  }
+});
