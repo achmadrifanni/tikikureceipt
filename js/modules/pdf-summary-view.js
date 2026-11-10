@@ -51,28 +51,28 @@ export function renderBoronganSummary(data, container) {
 
             <div>
                 <span>JUMLAH TRANSAKSI</span>
-                <strong>${escapeHTML(data.transactionCount)}</strong>
+                <strong>${escapeHTML(data.transactionCount)} CN</strong>
             </div>
         </section>
 
-      <section class="borongan-summary__stats">
+        <section class="borongan-summary__totals">
 
-        <div class="borongan-summary__stat">
-          <span>Total transaksi</span>
-          <strong>${escapeHTML(formatRupiah(data.totalTransaction))}</strong>
-        </div>
+            <div>
+                <span>TOTAL TRANSAKSI</span>
+                <strong>${formatRupiah(data.totalTransaction)}</strong>
+            </div>
 
-        <div class="borongan-summary__stat">
-          <span>Total diskon</span>
-          <strong>${escapeHTML(formatRupiah(data.totalDiscount))}</strong>
-        </div>
+            <div>
+                <span>TOTAL DISKON</span>
+                <strong>${formatRupiah(data.totalDiscount)}</strong>
+            </div>
 
-        <div class="borongan-summary__stat borongan-summary__stat--total">
-          <span>Setelah diskon</span>
-          <strong>${escapeHTML(formatRupiah(data.afterDiscount))}</strong>
-        </div>
+            <div>
+                <span>SETELAH DISKON</span>
+                <strong>${formatRupiah(data.afterDiscount)}</strong>
+            </div>
 
-      </section>
+        </section>
 
       <section class="borongan-summary__table-section">
         <h4>Rincian transaksi</h4>
@@ -91,10 +91,6 @@ export function renderBoronganSummary(data, container) {
           </tbody>
         </table>
       </section>
-
-      <footer class="borongan-summary__footer">
-        <span>RINGKASAN LAPORAN BORONGAN</span>
-      </footer>
 
     </article>
   `;

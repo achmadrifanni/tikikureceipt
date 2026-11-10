@@ -318,41 +318,33 @@ kbd {
 
 /* Statistics */
 
-.borongan-summary__stats {
+.borongan-summary__totals {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  padding: 14px 0;
-  border-bottom: 1px solid #dce4ee;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 16px;
 }
 
-.borongan-summary__stat {
+.borongan-summary__totals > div {
   display: flex;
   flex-direction: column;
   gap: 5px;
   min-width: 0;
 }
 
-.borongan-summary__stat span {
+.borongan-summary__totals span {
+  font-size: 11px;
+  font-weight: 600;
   color: #64748b;
-  font-size: 9px;
 }
 
-.borongan-summary__stat strong {
-  font-size: 12px;
+.borongan-summary__totals strong {
+  font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
 
-.borongan-summary__stat--total {
-  grid-column: 1 / -1;
-  padding: 10px;
-  background: #eff6ff;
-  border-radius: 6px;
-}
-
-.borongan-summary__stat--total strong {
-  color: #1d4ed8;
-  font-size: 15px;
+.borongan-summary__totals div:last-child strong {
+  font-size: 1rem;
 }
 
 /* Transaction table */
@@ -363,14 +355,14 @@ kbd {
 
 .borongan-summary__table-section h4 {
   margin: 0 0 8px;
-  font-size: 11px;
+  font-size: 1rem;
 }
 
 .borongan-summary__table {
   width: 100%;
   border-collapse: collapse;
   table-layout: fixed;
-  font-size: 10px;
+  font-size: 0.875rem;
 }
 
 .borongan-summary__table th,
