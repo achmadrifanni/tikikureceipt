@@ -103,12 +103,25 @@
       <section class="preview-panel" aria-labelledby="previewHeading">
         <div class="section-heading">
           <h2 id="previewHeading">Preview A4</h2>
+          <div class="zoom-controls">
+            <button id="zoomOut" type="button" aria-label="Perkecil preview">−</button>
+
+            <span id="zoomLevel">100%</span>
+
+            <button id="zoomIn" type="button" aria-label="Perbesar preview">+</button>
+
+            <button id="zoomReset" type="button">Reset</button>
+          </div>
           <span id="previewMeta">2 kolom · otomatis</span>
         </div>
-        <div class="paper-stage">
-          <div id="printPages" class="print-pages">
-            <div class="paper paper--empty">
-              <p>Preview cetak akan muncul di sini.</p>
+
+        <!-- Area preview -->
+        <div class="paper-stage" id="previewViewport">
+          <div class="preview-canvas" id="previewCanvas">
+            <div id="printPages" class="print-pages">
+              <div class="paper paper--empty">
+                <p>Preview cetak akan muncul di sini.</p>
+              </div>
             </div>
           </div>
         </div>

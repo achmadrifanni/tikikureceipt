@@ -15,6 +15,12 @@ const elements = {
   printButton: document.querySelector("#printButton"),
   clearAllButton: document.querySelector("#clearAllButton"),
   statusMessage: document.querySelector("#statusMessage"),
+  previewViewport: document.querySelector("#previewViewport"),
+  previewCanvas: document.querySelector("#previewCanvas"),
+  zoomIn: document.querySelector("#zoomIn"),
+  zoomOut: document.querySelector("#zoomOut"),
+  zoomReset: document.querySelector("#zoomReset"),
+  zoomLevel: document.querySelector("#zoomLevel"),
 };
 
 const store = createReceiptStore();
@@ -26,6 +32,78 @@ function showStatus(message) {
   clearTimeout(statusTimeout);
   statusTimeout = setTimeout(() => elements.statusMessage.classList.remove("is-visible"), 2400);
 }
+
+// Pengaturan zoom preview A4
+let zoomScale = 1;
+
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 2;
+const ZOOM_STEP = 0.1;
+
+function updateZoom(newScale, resetPosition = false) {
+  const viewport = elements.previewViewport;
+  const canvas = elements.previewCanvas;
+
+  // Simpan titik tengah viewport sebelum zoom berubah
+  // const centerX = (viewport.scrollLeft + viewport.clientWidth / 2) / zoomScale;
+
+  // const centerY = (viewport.scrollTop + viewport.clientHeight / 2) / zoomScale;
+
+  if (resetPosition) {
+    viewport.scrollTo({
+      left: 0,
+      top: 0,
+    });
+  } else {
+    viewport.scrollTo({
+      left: 0,
+      top: 0,
+    });
+  }
+
+  // Batasi zoom antara 50% dan 200%
+  zoomScale = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newScale));
+
+  // Terapkan zoom pada canvas
+  canvas.style.transform = `scale(${zoomScale})`;
+
+  // Perbarui tulisan persentase
+  elements.zoomLevel.textContent = `${Math.round(zoomScale * 100)}%`;
+
+  // Atur posisi scroll agar titik tengah tetap terjaga
+  if (resetPosition) {
+    viewport.scrollTo({
+      left: 0,
+      top: 0,
+    });
+  } else {
+    viewport.scrollLeft = centerX * zoomScale - viewport.clientWidth / 2;
+
+    viewport.scrollTop = centerY * zoomScale - viewport.clientHeight / 2;
+  }
+
+  // Nonaktifkan tombol jika mencapai batas zoom
+  elements.zoomIn.disabled = zoomScale >= MAX_ZOOM;
+  elements.zoomOut.disabled = zoomScale <= MIN_ZOOM;
+}
+
+// Tombol Zoom In
+elements.zoomIn.addEventListener("click", () => {
+  updateZoom(zoomScale + ZOOM_STEP);
+});
+
+// Tombol Zoom Out
+elements.zoomOut.addEventListener("click", () => {
+  updateZoom(zoomScale - ZOOM_STEP);
+});
+
+// Tombol Reset
+elements.zoomReset.addEventListener("click", () => {
+  updateZoom(1, true);
+});
+
+// Inisialisasi zoom
+updateZoom(1, true);
 
 async function checkRecovery() {
   console.log("CHECK RECOVERY DIJALANKAN");
