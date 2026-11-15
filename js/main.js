@@ -27,11 +27,46 @@ function showStatus(message) {
   statusTimeout = setTimeout(() => elements.statusMessage.classList.remove("is-visible"), 2400);
 }
 
+async function checkRecovery() {
+  console.log("CHECK RECOVERY DIJALANKAN");
+
+  try {
+    const snapshot = await store.getRecoverySnapshot();
+
+    if (!snapshot) return;
+
+    const savedDate = new Date(snapshot.savedAt).toLocaleString("id-ID");
+
+    const shouldRestore = window.confirm(
+      `PEKERJAAN SEBELUMNYA DITEMUKAN!\n\n` +
+        `Jumlah gambar: ${snapshot.receipts.length}\n` +
+        `Terakhir disimpan: ${savedDate}\n\n` +
+        `Apakah kamu ingin memulihkan pekerjaan sebelumnya?`,
+    );
+
+    if (shouldRestore) {
+      await store.restore(snapshot);
+      showStatus("Pekerjaan sebelumnya berhasil dipulihkan.");
+    } else {
+      await store.discardRecovery();
+      showStatus("Backup sebelumnya diabaikan.");
+    }
+  } catch (error) {
+    console.error(error);
+    showStatus("Gagal memeriksa backup sebelumnya.");
+  }
+}
+
 function refreshUI() {
   const receipts = store.getAll();
-  renderReceiptList(elements.receiptList, receipts, (id) => {
-    store.remove(id);
-    refreshUI();
+  renderReceiptList(elements.receiptList, receipts, async (id) => {
+    try {
+      await store.remove(id);
+      refreshUI();
+    } catch (error) {
+      console.error(error);
+      showStatus("Gagal menyimpan perubahan.");
+    }
   });
   renderPrintPreview(elements.printPages, receipts);
   elements.receiptCount.textContent = `${receipts.length} ${receipts.length === 1 ? "resi" : "resi"}`;
@@ -73,16 +108,27 @@ elements.pasteZone.addEventListener("keydown", (event) => {
   }
 });
 
-elements.clearAllButton.addEventListener("click", () => {
+elements.clearAllButton.addEventListener("click", async () => {
   if (!store.getAll().length) return;
-  store.clear();
-  refreshUI();
-  showStatus("Semua resi telah dihapus.");
+
+  try {
+    await store.clear();
+    refreshUI();
+    showStatus("Semua resi telah dihapus.");
+  } catch (error) {
+    console.error(error);
+    showStatus("Gagal menghapus data.");
+  }
 });
 
 elements.printButton.addEventListener("click", () => printReceipts(store.getAll()));
 
-refreshUI();
+async function initializeApp() {
+  await checkRecovery();
+  refreshUI();
+}
+
+initializeApp();
 
 elements.pdfInput.addEventListener("change", async (event) => {
   const file = event.target.files[0];
@@ -117,7 +163,6 @@ elements.pdfInput.addEventListener("change", async (event) => {
     console.log("Gambar ringkasan berhasil ditambahkan:", imageData);
   } catch (error) {
     console.error(error);
-
     showStatus(error.message || "PDF gagal diproses.");
   } finally {
     event.target.value = "";
