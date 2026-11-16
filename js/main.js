@@ -4,6 +4,7 @@ import { renderReceiptList } from "./modules/receipt-list.js";
 import { renderPrintPreview, printReceipts } from "./modules/print.js";
 import { readBoronganPdf } from "./modules/pdf-summary.js";
 import { renderBoronganSummary, convertSummaryToImage } from "./modules/pdf-summary-view.js";
+import { showRestorePrompt } from "./modules/restore-prompt.js";
 
 const elements = {
   pasteZone: document.querySelector("#pasteZone"),
@@ -28,29 +29,28 @@ function showStatus(message) {
 }
 
 async function checkRecovery() {
-  console.log("CHECK RECOVERY DIJALANKAN");
-
   try {
     const snapshot = await store.getRecoverySnapshot();
 
+    // Tidak ada backup, tidak perlu menampilkan modal
     if (!snapshot) return;
 
-    const savedDate = new Date(snapshot.savedAt).toLocaleString("id-ID");
+    // Tampilkan modal pemulihan
+    showRestorePrompt({
+      onRestore: async () => {
+        await store.restore(snapshot);
 
-    const shouldRestore = window.confirm(
-      `PEKERJAAN SEBELUMNYA DITEMUKAN!\n\n` +
-        `Jumlah gambar: ${snapshot.receipts.length}\n` +
-        `Terakhir disimpan: ${savedDate}\n\n` +
-        `Apakah kamu ingin memulihkan pekerjaan sebelumnya?`,
-    );
+        showStatus("Pekerjaan sebelumnya berhasil dipulihkan.");
+        refreshUI();
+      },
 
-    if (shouldRestore) {
-      await store.restore(snapshot);
-      showStatus("Pekerjaan sebelumnya berhasil dipulihkan.");
-    } else {
-      await store.discardRecovery();
-      showStatus("Backup sebelumnya diabaikan.");
-    }
+      onStartNew: async () => {
+        await store.discardRecovery();
+
+        showStatus("Memulai pekerjaan baru.");
+        refreshUI();
+      },
+    });
   } catch (error) {
     console.error(error);
     showStatus("Gagal memeriksa backup sebelumnya.");
